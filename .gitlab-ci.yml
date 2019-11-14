@@ -1,0 +1,14 @@
+default:
+  image: rust:1.39-slim
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+stages:
+  - test
+test:
+  stage: test
+  variables:
+    CODE_COVERAGE: "true"
+  script:
+    - cargo build
+    - cargo test
