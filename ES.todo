@@ -1,0 +1,27 @@
+ExpertSystem:
+	LexerParser:
+		☐ Pouvoir detecter les comments
+		☐ Ignorer les \w
+		☐ Detecter les 3 parties (Regles, faits initiaux et query)
+		Regles:
+			☐ Cree la regle
+			☐ Creer les nouveaux faits
+			☐ Tokenization
+			☐ Stockage dans le graph
+			☐ Ajouter des references de la regle aux faits impliqués (partie droite de la regle)
+		Faits intiaux:
+			☐ Set les valeurs intiales
+		Query:
+			☐ Pour chaque faits : interroger le graph
+			☐ Display
+	Resolving:
+		Rules:
+			☐ Faire un container acceptant des operateurs non-resolvable
+			☐ Attribut vector
+			☐ Faire la resolution de la regle
+	Others:
+		Operator:
+			☐ Faire un trait definissant le comportemant des operators non fini
+			☐ Faire une class indent et deindent pour les (, )
+			☐ Rajouter un attribut `not` au operateur
+			☐ Faire la prioritisation des operateurs
