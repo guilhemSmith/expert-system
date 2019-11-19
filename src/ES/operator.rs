@@ -1,19 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.rs                                            :+:      :+:    :+:   */
+/*   operator.rs                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fle-roy <francis.leroy@protonmail.ch>      +#+  +:+       +#+        */
+/*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/11/15 11:09:23 by gsmith            #+#    #+#             */
-/*   Updated: 2019/11/19 13:47:19 by fle-roy          ###   ########.fr       */
+/*   Created: 2019/11/15 14:48:22 by gsmith            #+#    #+#             */
+/*   Updated: 2019/11/18 12:39:02 by gsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-mod ES;
+mod and;
+mod not;
+mod operand;
+mod or;
+mod xor;
 
-fn main() {
-	let args: Vec<String> = std::env::args().collect();
-	
-	ES::LP::process_file(&args[0]);
+pub use and::And;
+pub use not::Not;
+pub use operand::Operand;
+pub use or::Or;
+pub use xor::Xor;
+
+use super::Graph;
+
+pub trait Operator {
+    fn process(&self, graph: &Graph) -> bool;
 }
