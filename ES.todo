@@ -20,8 +20,9 @@ ExpertSystem:
 			☐ Attribut vector
 			☐ Faire la resolution de la regle
 	Others:
-		Operator:
-			☐ Faire un trait definissant le comportemant des operators non fini
-			☐ Faire une class indent et deindent pour les (, )
-			☐ Rajouter un attribut `not` au operateur
-			☐ Faire la prioritisation des operateurs
+		Token (enum):
+			☐ Negation
+			Operator:
+				☐ Faire une class indent et deindent pour les (, )
+			Operand:
+				☐ Struct
