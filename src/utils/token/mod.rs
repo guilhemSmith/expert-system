@@ -1,21 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.rs                                            :+:      :+:    :+:   */
+/*   mod.rs                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fle-roy <francis.leroy@protonmail.ch>      +#+  +:+       +#+        */
+/*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/11/15 11:09:23 by gsmith            #+#    #+#             */
-/*   Updated: 2019/11/19 18:05:15 by fle-roy          ###   ########.fr       */
+/*   Created: 2019/11/20 10:47:08 by gsmith            #+#    #+#             */
+/*   Updated: 2019/11/20 10:58:33 by gsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-pub mod lexer_parser;
-pub mod resolving;
-pub mod utils;
+mod operand;
+mod operator;
 
-fn main() {
-    let args: Vec<String> = std::env::args().collect();
+pub use operand::Operand;
+pub use operator::Operator;
 
-    lexer_parser::process_file(&args[0]);
+pub enum Token {
+    Computable(Operator),
+    Factual(Operand),
 }
