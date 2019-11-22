@@ -34,9 +34,16 @@ build_job:
   script:
     - cargo build
 
-test_job:
+test_unit:
   stage: test
   variables:
     CODE_COVERAGE: "true"
   script:
     - cargo test
+
+test_functionalities:
+  stage: test
+  variables:
+    CODE_COVERAGE: "true"
+  script:
+    - sh tests/run.sh

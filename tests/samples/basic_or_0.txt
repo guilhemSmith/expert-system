@@ -1,0 +1,11 @@
+B + C => A 
+D | E => B 
+B => C 
+
+= 
+?A 
+
+# A should be false. 
+With =D, A should be true. 
+With =E, A should be true. 
+With =DE, A should be true. 
