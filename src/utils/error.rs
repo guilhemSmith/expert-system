@@ -1,21 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Error.rs                                           :+:      :+:    :+:   */
+/*   error.rs                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fle-roy <francis.leroy@protonmail.ch>      +#+  +:+       +#+        */
+/*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/15 11:46:59 by gsmith            #+#    #+#             */
-/*   Updated: 2019/11/19 16:54:10 by fle-roy          ###   ########.fr       */
+/*   Updated: 2019/11/22 17:09:38 by gsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 use std::error::Error;
 use std::fmt;
 
+pub type ESResult<T> = Result<T, ESError>;
+
+#[derive(Copy, Clone)]
 pub enum ESErrorKind {
-    UnknownFact,
+    CorruptedGraph,
+    CorruptedRPNStack,
+    CorruptedRule,
     IOError,
+    UnknownFact,
 }
 
 pub struct ESError {
@@ -33,16 +39,58 @@ impl ESError {
         }
     }
 
-    pub fn kind(&self) -> String {
+    pub fn unknown_fact(fact: char) -> Self {
+        ESError {
+            kind: ESErrorKind::UnknownFact,
+            what: Some(format!("Fact '{}' is not recognized", fact)),
+            recov: true,
+        }
+    }
+
+    pub fn corrupted_graph() -> Self {
+        ESError {
+            kind: ESErrorKind::CorruptedGraph,
+            what: Some(String::from(
+                "The graph seems to have its data corrupted.",
+            )),
+            recov: false,
+        }
+    }
+
+    pub fn corrupted_rule() -> Self {
+        ESError {
+            kind: ESErrorKind::CorruptedRule,
+            what: Some(String::from("A rule owne an empty rpn stack.")),
+            recov: false,
+        }
+    }
+
+    pub fn corrupted_rpn_stack() -> Self {
+        ESError {
+            kind: ESErrorKind::CorruptedRPNStack,
+            what: Some(String::from(
+                "A RPN stack is invalid and can't be solved.",
+            )),
+            recov: false,
+        }
+    }
+
+    pub fn kind(&self) -> ESErrorKind {
+        self.kind
+    }
+
+    pub fn kind_str(&self) -> String {
         match self.kind {
-            ESErrorKind::UnknownFact => String::from("Logic Error"),
+            ESErrorKind::CorruptedGraph => String::from("Graph Error"),
+            ESErrorKind::CorruptedRPNStack => String::from("RPN Error"),
+            ESErrorKind::CorruptedRule => String::from("Rule Error"),
             ESErrorKind::IOError => String::from("IO Error"),
+            ESErrorKind::UnknownFact => String::from("Logic Error"),
         }
     }
 
     pub fn what(&self) -> Option<String> {
         match self.kind {
-            ESErrorKind::UnknownFact => Some(String::from("Unknown fact")),
             _ => self.what.clone(),
         }
     }
@@ -53,7 +101,7 @@ impl fmt::Display for ESError {
         write!(
             f,
             "{}: {}",
-            self.kind(),
+            self.kind_str(),
             match self.what() {
                 None => String::from("unexpected"),
                 Some(msg) => msg,
@@ -69,7 +117,7 @@ impl fmt::Debug for ESError {
             "<{}:{}> {}: {}",
             file!(),
             line!(),
-            self.kind(),
+            self.kind_str(),
             match self.what() {
                 None => String::from("unexpected"),
                 Some(msg) => msg,
