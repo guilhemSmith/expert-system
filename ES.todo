@@ -1,28 +1,29 @@
 ExpertSystem:
 	LexerParser:
-		☐ Pouvoir detecter les comments
-		☐ Ignorer les \w
-		☐ Detecter les 3 parties (Regles, faits initiaux et query)
+		✔ Pouvoir detecter les comments @done(19-11-26 16:42)
+		✔ Ignorer les \w @done(19-11-26 16:42)
+		✔ Detecter les 3 parties (Regles, faits initiaux et query) @done(19-11-26 16:42)
 		Regles:
-			☐ Cree la regle
-			☐ Creer les nouveaux faits
-			☐ Tokenization
-			☐ Stockage dans le graph
-			☐ Ajouter des references de la regle aux faits impliqués (partie droite de la regle)
+			✔ Tokenization @done(19-11-26 16:43)
+			☐ Cree une fonction pour cree 1 Vec a partir d'un ESLine : Left token RPN style @assign(fle-roy)
+			ReglesDansLeGraph:
+			☐ Creer les nouveaux faits @assign(gsmith)
+			☐ Stockage dans le graph @assign(gsmith)
+
 		Faits intiaux:
-			☐ Set les valeurs intiales
+			☐ Set les valeurs intiales @assign(gsmith)
 		Query:
-			☐ Pour chaque faits : interroger le graph
-			☐ Display
+			☐ Pour chaque faits : interroger le graph @assign(gsmith)
+			☐ Display @assign(gsmith)
 	Resolving:
 		Rules:
-			☐ Faire un container acceptant des operateurs non-resolvable
-			☐ Attribut vector
-			☐ Faire la resolution de la regle
+			✔ Faire un container acceptant des operateurs @done(19-11-26 16:43)
+			✔ Attribut vector @done(19-11-26 16:43)
+			✔ Faire la resolution de la regle @done(19-11-26 16:43)
 	Others:
 		Token (enum):
-			☐ Negation
-			Operator:
-				☐ Faire une class indent et deindent pour les (, )
-			Operand:
-				☐ Struct
+			✔ Negation @done(19-11-26 16:44)
+		Modifier:
+			✔ Faire une class indent et deindent pour les (, ) @done(19-11-26 16:44)
+		Operand:
+			✔ Struct @done(19-11-26 16:44)
