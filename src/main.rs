@@ -1,21 +1,20 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.rs                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: fle-roy <francis.leroy@protonmail.ch>      +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/11/15 11:09:23 by gsmith            #+#    #+#             */
-/*   Updated: 2019/11/19 18:07:41 by fle-roy          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 pub mod lexer_parser;
 pub mod resolving;
 pub mod utils;
 
-fn main() {
+fn toto() -> Result<(), utils::error::ESError> {
+    let lines: Vec<String> =
+        vec![format!("A + (((B + D))) + (A | C ^ B) => C + D + E")];
+    for line in lines {
+        let tmp: lexer_parser::ESLine = lexer_parser::ESLine::new(&line)?;
+        tmp.check()?;
+    }
+    Ok(())
+}
+fn main() -> Result<(), utils::error::ESError> {
     let args: Vec<String> = std::env::args().collect();
 
-    lexer_parser::process_file(&args[0]);
+    toto();
+    lexer_parser::ESLine::process(&String::from("example.txt"))?;
+    Ok(())
 }

@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   rule.rs                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/11/15 11:07:29 by gsmith            #+#    #+#             */
-/*   Updated: 2019/11/22 16:55:39 by gsmith           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 use std::collections::{HashMap, HashSet};
 use std::vec::Vec;
 
@@ -73,7 +61,7 @@ impl Rule {
             Token::Factual(operand) => {
                 let mut result =
                     self.get_fact(graph, seen, operand.symbol())?;
-                if operand.is_negated() {
+                if operand.negated() {
                     result = !result;
                 }
                 return Ok(result);
@@ -116,8 +104,9 @@ impl Rule {
                         OpCode::And => self.and(graph, seen, arg)?,
                         OpCode::Or => self.or(graph, seen, arg)?,
                         OpCode::Xor => self.xor(graph, seen, arg)?,
+                        _ => return Err(ESError::corrupted_rpn_stack()),
                     };
-                    if operator.is_negated() {
+                    if operator.negated() {
                         result = !result;
                     }
                     stack.push(Token::Solved(result));
