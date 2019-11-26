@@ -1,27 +1,17 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   error.rs                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/11/15 11:46:59 by gsmith            #+#    #+#             */
-/*   Updated: 2019/11/22 17:09:38 by gsmith           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 use std::error::Error;
 use std::fmt;
 
 pub type ESResult<T> = Result<T, ESError>;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum ESErrorKind {
     CorruptedGraph,
     CorruptedRPNStack,
     CorruptedRule,
-    IOError,
     UnknownFact,
+    UnknownOp,
+    LineError,
+    IOError,
 }
 
 pub struct ESError {
@@ -35,6 +25,14 @@ impl ESError {
         ESError {
             kind: kind,
             what: None,
+            recov: true,
+        }
+    }
+
+    pub fn new_w_what(kind: ESErrorKind, what: String) -> ESError {
+        ESError {
+            kind: kind,
+            what: Some(what),
             recov: true,
         }
     }
@@ -84,29 +82,24 @@ impl ESError {
             ESErrorKind::CorruptedGraph => String::from("Graph Error"),
             ESErrorKind::CorruptedRPNStack => String::from("RPN Error"),
             ESErrorKind::CorruptedRule => String::from("Rule Error"),
+            ESErrorKind::UnknownOp => String::from("Unknown OP"),
+            ESErrorKind::LineError => String::from("Line Error"),
             ESErrorKind::IOError => String::from("IO Error"),
             ESErrorKind::UnknownFact => String::from("Logic Error"),
         }
     }
 
-    pub fn what(&self) -> Option<String> {
-        match self.kind {
-            _ => self.what.clone(),
+    pub fn what(&self) -> String {
+        match &self.what {
+            None => String::from("unknown error").clone(),
+            Some(s) => s.clone(),
         }
     }
 }
 
 impl fmt::Display for ESError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{}: {}",
-            self.kind_str(),
-            match self.what() {
-                None => String::from("unexpected"),
-                Some(msg) => msg,
-            }
-        )
+        write!(f, "{}: {}", self.kind_str(), self.what())
     }
 }
 
@@ -118,10 +111,7 @@ impl fmt::Debug for ESError {
             file!(),
             line!(),
             self.kind_str(),
-            match self.what() {
-                None => String::from("unexpected"),
-                Some(msg) => msg,
-            }
+            self.what()
         )
     }
 }

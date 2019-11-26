@@ -1,24 +1,26 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   mod.rs                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/11/20 10:47:08 by gsmith            #+#    #+#             */
-/*   Updated: 2019/11/21 17:46:06 by gsmith           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
+mod modifier;
 mod operand;
 mod operator;
 
+pub use modifier::{Modifier, ModifierType};
 pub use operand::Operand;
 pub use operator::{OpCode, Operator};
 
-#[derive(Clone)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Token {
+    Behavioral(Modifier),
     Computable(Operator),
     Factual(Operand),
     Solved(bool),
+}
+
+impl std::fmt::Display for Token {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            &Token::Computable(op) => write!(f, "{}", op.display_str()),
+            &Token::Factual(op) => write!(f, "{}", op.display_str()),
+            &Token::Behavioral(op) => write!(f, "{}", op.display_str()),
+            &Token::Solved(op) => write!(f, "{}", op),
+        }
+    }
 }
