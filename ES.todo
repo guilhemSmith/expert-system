@@ -5,7 +5,8 @@ ExpertSystem:
 		✔ Detecter les 3 parties (Regles, faits initiaux et query) @done(19-11-26 16:42)
 		Regles:
 			✔ Tokenization @done(19-11-26 16:43)
-			☐ Cree une fonction pour cree 1 Vec a partir d'un ESLine : Left token RPN style @assign(fle-roy)
+			✔ Cree une fonction pour cree 1 Vec a partir d'un ESLine : Left token RPN style @assign(fle-roy) @done(19-11-29 16:08)
+			☐ Faire la propagation des `!` dans les parentheses (i.e. "A + B + !(C + D) => T")
 			ReglesDansLeGraph:
 			☐ Creer les nouveaux faits @assign(gsmith)
 			☐ Stockage dans le graph @assign(gsmith)
