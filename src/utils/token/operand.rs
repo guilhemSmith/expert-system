@@ -1,7 +1,13 @@
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug)]
 pub struct Operand {
     negated: bool,
     symbol: char,
+}
+
+impl PartialEq for Operand {
+    fn eq(&self, other: &Self) -> bool {
+        self.symbol == other.symbol && self.negated == other.negated
+    }
 }
 
 impl Operand {

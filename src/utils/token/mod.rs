@@ -14,13 +14,28 @@ pub enum Token {
     Solved(bool),
 }
 
+impl Token {
+    pub fn priority(&self) -> u8 {
+        match self {
+            Token::Computable(x) => match x.op_code() {
+                OpCode::And | OpCode::Xor => 2,
+                OpCode::Or => 1,
+            },
+            _ => 0,
+        }
+    }
+    pub fn to_string(&self) -> String {
+        match self {
+            &Token::Computable(op) => op.display_str(),
+            &Token::Factual(op) => op.display_str(),
+            &Token::Behavioral(op) => op.display_str(),
+            &Token::Solved(op) => op.to_string(),
+        }
+    }
+}
+
 impl std::fmt::Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            &Token::Computable(op) => write!(f, "{}", op.display_str()),
-            &Token::Factual(op) => write!(f, "{}", op.display_str()),
-            &Token::Behavioral(op) => write!(f, "{}", op.display_str()),
-            &Token::Solved(op) => write!(f, "{}", op),
-        }
+        write!(f, "{}", self.to_string())
     }
 }

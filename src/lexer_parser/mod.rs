@@ -23,9 +23,18 @@ pub struct ESLine {
 impl ESLine {
     fn lexer_factual(
         c: &char,
+        lt: &Option<ESLineType>,
         res: &mut Vec<Token>,
         neg: &mut bool,
     ) -> ESResult<()> {
+        if lt.is_some() && *neg
+        // Query or fact or right side of rule
+        {
+            return Err(ESError::new_w_what(
+                ESErrorKind::LineError,
+                format!("Can't use negation on the right side of rules"),
+            ));
+        }
         res.push(Token::Factual(Operand::new(*neg, *c))); // Add to vector
         *neg = false; // Don't forget to reset not op
         Ok(())
@@ -36,6 +45,12 @@ impl ESLine {
         res: &mut Vec<Token>,
         neg: &mut bool,
     ) -> ESResult<()> {
+        if *neg {
+            return Err(ESError::new_w_what(
+                ESErrorKind::LineError,
+                format!("Can't use negation modifier with operator {}", c),
+            ));
+        }
         res.push(Token::Behavioral(Modifier::new(
             *neg,
             Modifier::op_from_str(&c.to_string())?,
@@ -49,6 +64,12 @@ impl ESLine {
         res: &mut Vec<Token>,
         neg: &mut bool,
     ) -> ESResult<()> {
+        if *neg {
+            return Err(ESError::new_w_what(
+                ESErrorKind::LineError,
+                format!("Can't use negation modifier with modifier {}", c),
+            ));
+        }
         res.push(Token::Computable(Operator::new_from_char(*neg, *c)?)); // Add to vector
         *neg = false; // Don't forget to reset not op
         Ok(())
@@ -56,6 +77,7 @@ impl ESLine {
 
     fn lexer_set_line_type(
         lt: &mut Option<ESLineType>,
+        neg: &bool,
         t: ESLineType,
     ) -> ESResult<()> {
         if lt.is_some()
@@ -67,6 +89,12 @@ impl ESLine {
             ));
         }
         *lt = Some(t);
+        if *neg {
+            return Err(ESError::new_w_what(
+                ESErrorKind::LineError,
+                format!("Can't use negation modifier before reserved token"),
+            ));
+        }
         Ok(())
     }
 
@@ -79,17 +107,23 @@ impl ESLine {
     ) -> ESResult<()> {
         let tmp = iter.peek();
 
+        if *neg {
+            return Err(ESError::new_w_what(
+                ESErrorKind::LineError,
+                format!("Can't use negation modifier with operator {}", c),
+            ));
+        }
         match tmp {
             Some('>') => {
                 iter.next(); // Discard the `>`
-                ESLine::lexer_set_line_type(lt, ESLineType::Rule)?;
+                ESLine::lexer_set_line_type(lt, &neg, ESLineType::Rule)?;
                 res.push(Token::Behavioral(Modifier::new(
                     *neg,
                     ModifierType::Imply,
                 )?))
             }
             Some('A'..='Z') => {
-                ESLine::lexer_set_line_type(lt, ESLineType::Fact)?;
+                ESLine::lexer_set_line_type(lt, &neg, ESLineType::Fact)?;
                 if res.len() > 0 {
                     return Err(ESError::new_w_what(
                         ESErrorKind::LineError,
@@ -125,7 +159,9 @@ impl ESLine {
             let c = cursor.unwrap();
             match c {
                 '!' => neg = true, // NOT Operator
-                'A'..='Z' => ESLine::lexer_factual(&c, &mut res, &mut neg)?, // Fact
+                'A'..='Z' => {
+                    ESLine::lexer_factual(&c, &lt, &mut res, &mut neg)?
+                } // Fact
                 '(' | ')' => ESLine::lexer_indent(&c, &mut res, &mut neg)?, // Indent
                 '+' | '|' | '^' => {
                     ESLine::lexer_computable(&c, &mut res, &mut neg)?
@@ -139,7 +175,11 @@ impl ESLine {
                     }
                     break;
                 }
-                '?' => ESLine::lexer_set_line_type(&mut lt, ESLineType::Query)?,
+                '?' => ESLine::lexer_set_line_type(
+                    &mut lt,
+                    &neg,
+                    ESLineType::Query,
+                )?,
                 '=' => ESLine::lexer_handle_equal(
                     &c, &neg, &mut iter, &mut lt, &mut res,
                 )?, // Is it a Fact or a rule '=>' ?
@@ -152,6 +192,12 @@ impl ESLine {
                 }
             }
             cursor = iter.next();
+        }
+        if neg {
+            return Err(ESError::new_w_what(
+                ESErrorKind::LineError,
+                String::from("Can't have a dangling `!`"),
+            ));
         }
         if lt.is_none() {
             if res.len() == 0 {
@@ -237,8 +283,7 @@ impl ESLine {
 						ModifierType::Imply => // Can't begin with an imply
 							return Err(ESLine::error_logic_token(prev_token,
 								token)),
-						ModifierType::Ind | ModifierType::Deind => // Apply indentation
-							*ind_lvl += _op2.ind() as i32,
+						_ => (),
 					},
 				(None, Token::Computable(_op2)) => // None + Computable
 					return Err(ESLine::error_logic_token(prev_token, token)), // Can't begin with an operator
@@ -254,8 +299,7 @@ impl ESLine {
 							}
 							*has_implied = true;
 						},
-						ModifierType::Ind | ModifierType::Deind => // Apply indentation
-							*ind_lvl += _op2.ind() as i32,
+						_ => (),
 					},
 				(Some(Token::Behavioral(_op1)), Token::Factual(_op2)) => // Behavioral + Factual
 					match _op1.symbol()
@@ -323,7 +367,7 @@ impl ESLine {
         Ok(())
     }
 
-    pub fn check(&self) -> Result<(), ESError> {
+    pub fn check(&self) -> ESResult<()> {
         match self.line_type {
             ESLineType::Empty => (), // Do nothing
             ESLineType::Fact | ESLineType::Query => self.check_query_fact()?, // If a token other than a fact is present, error out
@@ -332,7 +376,90 @@ impl ESLine {
         Ok(())
     }
 
-    pub fn new(line: &String) -> Result<Self, ESError> {
+    fn prefix_brackets(
+        token: &Modifier,
+        res: &mut Vec<Token>,
+        tmp: &mut Vec<Token>,
+    ) -> bool {
+        match token.symbol() {
+            ModifierType::Ind => tmp.push(Token::Behavioral(*token)),
+            ModifierType::Deind => loop {
+                match tmp.pop() {
+                    None | Some(Token::Behavioral(_)) => break,
+                    Some(x) => res.push(x),
+                }
+            },
+            _ => return true,
+        }
+        return false;
+    }
+
+    fn prefix_operator(
+        token: &Token,
+        res: &mut Vec<Token>,
+        tmp: &mut Vec<Token>,
+    ) {
+        loop {
+            match tmp.last() {
+                None => break,
+                Some(_x) => {
+                    println!(
+                        "Comparing {}({}) > {}({})",
+                        token.to_string(),
+                        token.priority(),
+                        _x.to_string(),
+                        _x.priority()
+                    );
+                    if token.priority() > _x.priority() {
+                        break;
+                    }
+                    res.push(tmp.pop().unwrap());
+                }
+            }
+        }
+        tmp.push(*token);
+    }
+
+    pub fn to_prefix(self) -> ESResult<Vec<Token>> {
+        let mut res: Vec<Token> = Vec::new();
+        let mut tmp: Vec<Token> = Vec::new();
+
+        if self.line_type != ESLineType::Rule {
+            return Err(ESError::new_w_what(
+                ESErrorKind::RPNError,
+                String::from("Can't convert to prefix for non-rule line"),
+            ));
+        }
+        for token in self.tokens {
+            match token {
+                Token::Factual(_x) => res.push(token), // Fact : push to the result stack
+                Token::Behavioral(_x) => {
+                    if ESLine::prefix_brackets(&_x, &mut res, &mut tmp) {
+                        break;
+                    }
+                }
+                Token::Computable(_x) => {
+                    ESLine::prefix_operator(&token, &mut res, &mut tmp)
+                }
+                _ => {
+                    return Err(ESError::new_w_what(
+                        ESErrorKind::RPNError,
+                        format!("Unexpected token {}", token),
+                    ))
+                }
+            }
+        }
+        while !tmp.is_empty() {
+            res.push(tmp.pop().unwrap());
+        }
+        Ok(res)
+    }
+
+    pub fn tokens(&self) -> &Vec<Token> {
+        &self.tokens
+    }
+
+    pub fn new(line: &String) -> ESResult<Self> {
         let lexed_line = ESLine::lexer(line)?;
         let res = ESLine {
             line: line.clone(),
@@ -342,17 +469,13 @@ impl ESLine {
         Ok(res)
     }
 
-    pub fn process(path: &String) -> Result<(), ESError> {
+    pub fn process(path: &String) -> ESResult<Vec<Self>> {
         let buf: BufReader<File> = BufReader::new(File::open(path)?);
-        let mut token_list: ESLine;
+        let mut res: Vec<ESLine> = Vec::new();
 
         for line in buf.lines() {
-            token_list = ESLine::new(&(line?))?;
-            for token in token_list.tokens.iter() {
-                println!("Token {}", token);
-            }
-            println!("\n");
+            res.push(ESLine::new(&(line?))?);
         }
-        Ok(())
+        Ok(res)
     }
 }

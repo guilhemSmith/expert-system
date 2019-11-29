@@ -5,28 +5,32 @@ pub enum OpCode {
     And,
     Or,
     Xor,
-    Ind,
-    Deind,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone)]
 pub struct Operator {
     negated: bool,
     opc: OpCode,
 }
 
+impl PartialEq for Operator {
+    fn eq(&self, other: &Self) -> bool {
+        self.opc == other.opc && self.negated == other.negated
+    }
+}
+
 impl Operator {
     pub fn op_from_char(c: char) -> Result<OpCode, ESError> {
         match c {
-            '+' => Ok(OpCode::And),
-            '|' => Ok(OpCode::Or),
-            '^' => Ok(OpCode::Xor),
-            '(' => Ok(OpCode::Ind),
-            ')' => Ok(OpCode::Deind),
-            _ => Err(ESError::new_w_what(
-                ESErrorKind::UnknownOp,
-                format!("Unknown operator {}", c),
-            )),
+            '+' => return Ok(OpCode::And),
+            '|' => return Ok(OpCode::Or),
+            '^' => return Ok(OpCode::Xor),
+            _ => {
+                return Err(ESError::new_w_what(
+                    ESErrorKind::UnknownOp,
+                    format!("Unknown operator {}", c),
+                ))
+            }
         }
     }
 
@@ -35,8 +39,6 @@ impl Operator {
             OpCode::And => '+',
             OpCode::Or => '|',
             OpCode::Xor => '^',
-            OpCode::Ind => '(',
-            OpCode::Deind => ')',
         }
     }
 

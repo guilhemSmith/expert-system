@@ -6,7 +6,7 @@
 /*   By: fle-roy <francis.leroy@protonmail.ch>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/20 10:50:03 by gsmith            #+#    #+#             */
-/*   Updated: 2019/11/25 14:25:48 by fle-roy          ###   ########.fr       */
+/*   Updated: 2019/11/27 18:52:51 by fle-roy          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,16 @@ pub enum ModifierType {
     Ind,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug)]
 pub struct Modifier {
     negated: bool,
     symbol: ModifierType,
+}
+
+impl PartialEq for Modifier {
+    fn eq(&self, other: &Self) -> bool {
+        self.symbol == other.symbol && self.negated == other.negated
+    }
 }
 
 impl Modifier {
@@ -46,7 +52,7 @@ impl Modifier {
     }
 
     pub fn ind(&self) -> i8 {
-        match self.symbol {
+        match self.symbol() {
             ModifierType::Deind => -1,
             ModifierType::Imply => 0,
             ModifierType::Ind => 1,
