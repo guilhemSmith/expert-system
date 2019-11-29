@@ -154,3 +154,42 @@ fn lexer_single_unknown_op() {
         }
     }
 }
+
+#[test]
+fn lexer_neg_correct() {
+    let lines: Vec<String> = vec![
+        format!("!A+!B+!C=>D"),
+        format!("!    	A+B+! C=>D"),
+        format!("!!!!!!!!A+B+!C=>D"),
+    ];
+
+    for line in lines {
+        let tmp = ESLine::new(&line);
+        match tmp {
+            Ok(_) => (),
+            Err(_err) => panic!("Should NOT have failed : {} !", line),
+        }
+    }
+}
+
+#[test]
+fn lexer_neg_incorrect() {
+    let lines: Vec<String> = vec![
+        format!("A!+B+C=>D"),
+        format!("!A+B+!C !=> D"),
+        format!("A+B+C=>!D"),
+        format!("A+B+C=>D+!F"),
+        format!("=!ABC"),
+        format!("=A!BC"),
+        format!("?AB!C"),
+        format!("!!!!()!!!!A+B+!C=>D"),
+    ];
+
+    for line in lines {
+        let tmp = ESLine::new(&line);
+        match tmp {
+            Ok(_) => panic!("Should have failed {} !", line),
+            Err(err) => assert_eq!(err.kind(), ESErrorKind::LineError),
+        }
+    }
+}

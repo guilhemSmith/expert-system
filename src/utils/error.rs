@@ -12,6 +12,7 @@ pub enum ESErrorKind {
     UnknownOp,
     LineError,
     IOError,
+    RPNError,
 }
 
 pub struct ESError {
@@ -86,6 +87,7 @@ impl ESError {
             ESErrorKind::LineError => String::from("Line Error"),
             ESErrorKind::IOError => String::from("IO Error"),
             ESErrorKind::UnknownFact => String::from("Logic Error"),
+            ESErrorKind::RPNError => String::from("RPN Error"),
         }
     }
 
