@@ -15,7 +15,6 @@ pub enum ESLineType {
 }
 
 pub struct ESLine {
-    line: String,
     line_type: ESLineType,
     tokens: Vec<Token>,
 }
@@ -297,7 +296,6 @@ impl ESLine {
         token: &Token,
         prev_token: Option<&Token>,
         has_implied: &mut bool,
-        ind_lvl: &mut i32,
         line_type: ESLineType,
     ) -> ESResult<()> {
         match (prev_token, token) // Check token pair
@@ -378,7 +376,6 @@ impl ESLine {
                 &token,
                 prev_token,
                 &mut has_implied,
-                &mut ind_lvl,
                 self.line_type,
             )?;
             prev_token = Some(token);
@@ -428,13 +425,6 @@ impl ESLine {
             match tmp.last() {
                 None => break,
                 Some(_x) => {
-                    println!(
-                        "Comparing {}({}) > {}({})",
-                        token.to_string(),
-                        token.priority(),
-                        _x.to_string(),
-                        _x.priority()
-                    );
                     if token.priority() > _x.priority() {
                         break;
                     }
@@ -491,7 +481,6 @@ impl ESLine {
     pub fn new(line: &String) -> ESResult<Self> {
         let lexed_line = ESLine::lexer(line)?;
         let res = ESLine {
-            line: line.clone(),
             line_type: lexed_line.0,
             tokens: lexed_line.1,
         };

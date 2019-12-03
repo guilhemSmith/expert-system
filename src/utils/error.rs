@@ -19,7 +19,6 @@ pub enum ESErrorKind {
 pub struct ESError {
     kind: ESErrorKind,
     what: Option<String>,
-    recov: bool,
 }
 
 impl ESError {
@@ -27,7 +26,6 @@ impl ESError {
         ESError {
             kind: kind,
             what: None,
-            recov: true,
         }
     }
 
@@ -35,7 +33,6 @@ impl ESError {
         ESError {
             kind: kind,
             what: Some(what),
-            recov: true,
         }
     }
 
@@ -43,7 +40,6 @@ impl ESError {
         ESError {
             kind: ESErrorKind::UnknownFact,
             what: Some(format!("Fact '{}' is not recognized", fact)),
-            recov: true,
         }
     }
 
@@ -53,7 +49,6 @@ impl ESError {
             what: Some(String::from(
                 "The graph seems to have its data corrupted.",
             )),
-            recov: false,
         }
     }
 
@@ -61,7 +56,6 @@ impl ESError {
         ESError {
             kind: ESErrorKind::CorruptedRule,
             what: Some(String::from("A rule owne an empty rpn stack.")),
-            recov: false,
         }
     }
 
@@ -71,7 +65,6 @@ impl ESError {
             what: Some(String::from(
                 "A RPN stack is invalid and can't be solved.",
             )),
-            recov: false,
         }
     }
 
@@ -79,7 +72,6 @@ impl ESError {
         ESError {
             kind: ESErrorKind::ExecError,
             what: Some(what),
-            recov: false,
         }
     }
 
@@ -134,7 +126,6 @@ impl From<std::io::Error> for ESError {
         ESError {
             kind: ESErrorKind::IOError,
             what: Some(String::from(error.description())),
-            recov: false,
         }
     }
 }

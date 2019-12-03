@@ -30,7 +30,7 @@ impl Token {
             &Token::Computable(op) => op.negated(),
             &Token::Factual(op) => op.negated(),
             &Token::Behavioral(op) => op.negated(),
-            &Token::Solved(op) => false,
+            &Token::Solved(_op) => false,
         }
     }
 
