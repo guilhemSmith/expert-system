@@ -129,7 +129,8 @@ impl ESLine {
         lt: &mut Option<ESLineType>,
         res: &mut Vec<Token>,
     ) -> ESResult<()> {
-        let tmp = iter.peek();
+        let mut iter_clone = iter.clone();
+        let mut tmp = iter_clone.peek();
 
         if *neg {
             return Err(ESError::new_w_what(
@@ -137,38 +138,55 @@ impl ESLine {
                 format!("Can't use negation modifier with operator {}", c),
             ));
         }
-        match tmp {
-            Some('>') => {
-                iter.next(); // Discard the `>`
-                ESLine::lexer_set_line_type(lt, neg, ESLineType::Rule)?;
-                res.push(Token::Behavioral(Modifier::new(
-                    *neg,
-                    ModifierType::Imply,
-                )?))
-            }
-            Some('A'..='Z') => {
-                ESLine::lexer_set_line_type(lt, neg, ESLineType::Fact)?;
-                if res.len() > 0 {
+        loop {
+            match tmp {
+                Some('>') => {
+                    iter.next(); // Discard the `>`
+                    ESLine::lexer_set_line_type(lt, neg, ESLineType::Rule)?;
+                    res.push(Token::Behavioral(Modifier::new(
+                        *neg,
+                        ModifierType::Imply,
+                    )?));
+                    return Ok(());
+                }
+                Some('A'..='Z') => {
+                    ESLine::lexer_set_line_type(lt, neg, ESLineType::Fact)?;
+                    if res.len() > 0 {
+                        return Err(ESError::new_w_what(
+                            ESErrorKind::LineError,
+                            format!("`=` misplaced"),
+                        ));
+                    }
+                    return Ok(());
+                }
+                Some('\u{0009}'..='\u{000D}') | Some('\u{0020}') => {
+                    iter.next();
+                    iter_clone.next();
+                    tmp = iter_clone.peek();
+                } // Whitespace characters
+                Some(_x) => {
                     return Err(ESError::new_w_what(
                         ESErrorKind::LineError,
-                        format!("`=` misplaced"),
+                        format!(
+                            "Char {} is not allowed after `=`",
+                            tmp.unwrap()
+                        ),
                     ));
                 }
-            }
-            None => {
-                return Err(ESError::new_w_what(
-                    ESErrorKind::LineError,
-                    format!("`=` misplaced"),
-                ))
-            }
-            _ => {
-                return Err(ESError::new_w_what(
-                    ESErrorKind::LineError,
-                    format!("Char {} is not allowed after `=`", tmp.unwrap()),
-                ))
-            }
+                None => {
+					break ;
+				}
+            };
         }
-        Ok(())
+        if res.len() != 0 {
+            return Err(ESError::new_w_what(
+                ESErrorKind::LineError,
+                format!("Dangling `=` is forbidden"),
+            ));
+        } else {
+            ESLine::lexer_set_line_type(lt, neg, ESLineType::Fact)?;
+		}
+		Ok(())
     }
 
     fn lexer(line: &String) -> Result<(ESLineType, Vec<Token>), ESError> {
