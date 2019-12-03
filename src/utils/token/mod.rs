@@ -24,6 +24,16 @@ impl Token {
             _ => 0,
         }
     }
+
+    pub fn negated(&self) -> bool {
+        match self {
+            &Token::Computable(op) => op.negated(),
+            &Token::Factual(op) => op.negated(),
+            &Token::Behavioral(op) => op.negated(),
+            &Token::Solved(op) => false,
+        }
+    }
+
     pub fn to_string(&self) -> String {
         match self {
             &Token::Computable(op) => op.display_str(),
