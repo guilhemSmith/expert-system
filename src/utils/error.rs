@@ -13,6 +13,7 @@ pub enum ESErrorKind {
     LineError,
     IOError,
     RPNError,
+    ExecError,
 }
 
 pub struct ESError {
@@ -74,6 +75,14 @@ impl ESError {
         }
     }
 
+    pub fn failed_execution(what: String) -> Self {
+        ESError {
+            kind: ESErrorKind::ExecError,
+            what: Some(what),
+            recov: false,
+        }
+    }
+
     pub fn kind(&self) -> ESErrorKind {
         self.kind
     }
@@ -88,6 +97,7 @@ impl ESError {
             ESErrorKind::IOError => String::from("IO Error"),
             ESErrorKind::UnknownFact => String::from("Logic Error"),
             ESErrorKind::RPNError => String::from("RPN Error"),
+            ESErrorKind::ExecError => String::from("Execution Error"),
         }
     }
 

@@ -6,7 +6,7 @@
 /*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/15 11:06:54 by gsmith            #+#    #+#             */
-/*   Updated: 2019/11/22 17:02:17 by gsmith           ###   ########.fr       */
+/*   Updated: 2019/12/03 10:46:19 by gsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,5 +101,11 @@ impl Graph {
             }
         }
         return Ok(res);
+    }
+
+    pub fn clear_solutions(&mut self) {
+        for (_, fact) in &mut self.facts {
+            fact.clear_solution();
+        }
     }
 }

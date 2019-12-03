@@ -484,6 +484,10 @@ impl ESLine {
         &self.tokens
     }
 
+    pub fn kind(&self) -> ESLineType {
+        self.line_type
+    }
+
     pub fn new(line: &String) -> ESResult<Self> {
         let lexed_line = ESLine::lexer(line)?;
         let res = ESLine {
