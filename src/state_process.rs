@@ -6,7 +6,7 @@
 /*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/29 16:45:12 by gsmith            #+#    #+#             */
-/*   Updated: 2019/12/03 10:47:52 by gsmith           ###   ########.fr       */
+/*   Updated: 2019/12/03 16:02:49 by gsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@ use std::collections::HashSet;
 use crate::lexer_parser::{ESLine, ESLineType};
 use crate::resolving::Graph;
 use crate::utils::{
-    error::ESResult,
+    error::{ESErrorKind, ESResult},
     token::{ModifierType, Token},
 };
 
@@ -83,7 +83,17 @@ fn process_rules(graph: &mut Graph, line: ESLine) -> ESResult<()> {
 fn process_fact(graph: &mut Graph, line: ESLine) -> ESResult<()> {
     for tok in line.tokens() {
         match tok {
-            Token::Factual(op) => graph.init_fact(op.symbol())?,
+            Token::Factual(op) => {
+                if let Err(err) = graph.init_fact(op.symbol()) {
+                    match err.kind() {
+                        ESErrorKind::UnknownFact => {
+                            graph.create_fact(op.symbol());
+                            graph.init_fact(op.symbol())?;
+                        },
+                        _ => return Err(err),
+                    }
+                };
+            },
             _ => continue,
         }
     }
