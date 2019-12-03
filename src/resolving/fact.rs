@@ -6,7 +6,7 @@
 /*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/15 11:07:14 by gsmith            #+#    #+#             */
-/*   Updated: 2019/11/22 16:58:35 by gsmith           ###   ########.fr       */
+/*   Updated: 2019/12/03 10:47:02 by gsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,5 +63,9 @@ impl Fact {
                 }
             }
         }
+    }
+
+    pub fn clear_solution(&mut self) {
+        self.solved = None;
     }
 }
