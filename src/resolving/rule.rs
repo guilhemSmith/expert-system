@@ -4,7 +4,7 @@ use std::vec::Vec;
 use super::Graph;
 use crate::utils::{
     error::{ESError, ESResult},
-    token::{OpCode, Token},
+    token::{OpCode, Operator, Token},
 };
 
 pub struct Rule {
@@ -30,7 +30,12 @@ impl Rule {
         seen: &mut HashMap<char, Option<bool>>,
     ) -> ESResult<bool> {
         let stack = (&self.condition[..]).to_vec();
-        self.process_stack(graph, seen, stack)
+        let (res, stack) = self.process_stack(graph, seen, stack)?;
+        if stack.len() == 0 {
+            Ok(res)
+        } else {
+            Err(ESError::corrupted_rule())
+        }
     }
 
     fn process_stack(
@@ -38,37 +43,47 @@ impl Rule {
         graph: &Graph,
         seen: &mut HashMap<char, Option<bool>>,
         mut stack: Vec<Token>,
-    ) -> ESResult<bool> {
-        match stack.pop() {
-            None => return Err(ESError::corrupted_rule()),
-            Some(first) => match stack.pop() {
-                None => return self.single_token(graph, seen, first),
-                Some(sec) => {
-                    self.dual_token(graph, seen, (first, sec), &mut stack)?
+    ) -> ESResult<(bool, Vec<Token>)> {
+        let token = stack.pop();
+        match token {
+            None => Err(ESError::corrupted_rule()),
+            Some(first) => match first {
+                Token::Solved(value) => Ok((value, stack)),
+                Token::Factual(op) => {
+                    let mut res = self.get_fact(graph, seen, op.symbol())?;
+                    if op.negated() {
+                        res = !res;
+                    }
+                    Ok((res, stack))
                 }
+                Token::Computable(op) => {
+                    let (mut res, stack) =
+                        self.compute(graph, seen, op, stack)?;
+                    if op.negated() {
+                        res = !res;
+                    }
+                    Ok((res, stack))
+                }
+                _ => Err(ESError::corrupted_rpn_stack()),
             },
-        };
-        self.process_stack(graph, seen, stack)
+        }
     }
 
-    fn single_token(
+    fn compute(
         &self,
         graph: &Graph,
         seen: &mut HashMap<char, Option<bool>>,
-        token: Token,
-    ) -> ESResult<bool> {
-        match token {
-            Token::Factual(operand) => {
-                let mut result =
-                    self.get_fact(graph, seen, operand.symbol())?;
-                if operand.negated() {
-                    result = !result;
-                }
-                return Ok(result);
-            }
-            Token::Solved(val) => Ok(val),
-            _ => return Err(ESError::corrupted_rpn_stack()),
-        }
+        operator: Operator,
+        stack: Vec<Token>,
+    ) -> ESResult<(bool, Vec<Token>)> {
+        let (first_op, stack) = self.process_stack(graph, seen, stack)?;
+        let (second_op, stack) = self.process_stack(graph, seen, stack)?;
+        let res = match operator.op_code() {
+            OpCode::And => first_op && second_op,
+            OpCode::Or => first_op || second_op,
+            OpCode::Xor => (first_op || second_op) && !(first_op && second_op),
+        };
+        return Ok((res, stack));
     }
 
     fn get_fact(
@@ -87,72 +102,5 @@ impl Rule {
         let res = graph.try_fact(symbol, seen)?;
         seen.insert(symbol, Some(res));
         return Ok(res);
-    }
-
-    fn dual_token(
-        &self,
-        graph: &Graph,
-        seen: &mut HashMap<char, Option<bool>>,
-        arg: (Token, Token),
-        stack: &mut Vec<Token>,
-    ) -> ESResult<()> {
-        match stack.pop() {
-            None => return Err(ESError::corrupted_rpn_stack()),
-            Some(third) => {
-                if let Token::Computable(operator) = third {
-                    let mut result = match operator.op_code() {
-                        OpCode::And => self.and(graph, seen, arg)?,
-                        OpCode::Or => self.or(graph, seen, arg)?,
-                        OpCode::Xor => self.xor(graph, seen, arg)?,
-                        _ => return Err(ESError::corrupted_rpn_stack()),
-                    };
-                    if operator.negated() {
-                        result = !result;
-                    }
-                    stack.push(Token::Solved(result));
-                    return Ok(());
-                } else {
-                    self.dual_token(graph, seen, (arg.1, third), stack)?;
-                    stack.push(arg.0);
-                    return Ok(());
-                }
-            }
-        }
-    }
-
-    fn and(
-        &self,
-        graph: &Graph,
-        seen: &mut HashMap<char, Option<bool>>,
-        arg: (Token, Token),
-    ) -> ESResult<bool> {
-        let left = self.single_token(graph, seen, arg.0)?;
-        let right = self.single_token(graph, seen, arg.1)?;
-
-        Ok(left && right)
-    }
-
-    fn or(
-        &self,
-        graph: &Graph,
-        seen: &mut HashMap<char, Option<bool>>,
-        arg: (Token, Token),
-    ) -> ESResult<bool> {
-        let left = self.single_token(graph, seen, arg.0)?;
-        let right = self.single_token(graph, seen, arg.1)?;
-
-        Ok(left || right)
-    }
-
-    fn xor(
-        &self,
-        graph: &Graph,
-        seen: &mut HashMap<char, Option<bool>>,
-        arg: (Token, Token),
-    ) -> ESResult<bool> {
-        let left = self.single_token(graph, seen, arg.0)?;
-        let right = self.single_token(graph, seen, arg.1)?;
-
-        Ok((left && !right) || (!left && right))
     }
 }

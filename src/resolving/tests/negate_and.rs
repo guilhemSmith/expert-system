@@ -6,7 +6,7 @@
 /*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/22 17:25:47 by gsmith            #+#    #+#             */
-/*   Updated: 2019/11/22 17:26:04 by gsmith           ###   ########.fr       */
+/*   Updated: 2019/12/03 09:44:46 by gsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@ fn solve_operator_true_negated() -> ESResult<()> {
     graph.create_fact('B');
     graph.create_fact('C');
     let condition = vec![
-        Token::Computable(Operator::new(true, OpCode::And)),
         Token::Factual(Operand::new(false, 'B')),
         Token::Factual(Operand::new(false, 'A')),
+        Token::Computable(Operator::new(true, OpCode::And)),
     ];
     let mut in_facts = HashSet::new();
     let mut out_facts = HashSet::new();
@@ -52,9 +52,9 @@ fn solve_operator_false_negated() -> ESResult<()> {
     graph.create_fact('B');
     graph.create_fact('C');
     let condition = vec![
-        Token::Computable(Operator::new(true, OpCode::And)),
         Token::Factual(Operand::new(false, 'B')),
         Token::Factual(Operand::new(false, 'A')),
+        Token::Computable(Operator::new(true, OpCode::And)),
     ];
     let mut in_facts = HashSet::new();
     let mut out_facts = HashSet::new();
@@ -77,9 +77,9 @@ fn solve_operands_true_negated() -> ESResult<()> {
     graph.create_fact('B');
     graph.create_fact('C');
     let condition = vec![
-        Token::Computable(Operator::new(false, OpCode::And)),
         Token::Factual(Operand::new(true, 'B')),
         Token::Factual(Operand::new(true, 'A')),
+        Token::Computable(Operator::new(false, OpCode::And)),
     ];
     let mut in_facts = HashSet::new();
     let mut out_facts = HashSet::new();
@@ -104,9 +104,9 @@ fn solve_operands_false_negated() -> ESResult<()> {
     graph.create_fact('B');
     graph.create_fact('C');
     let condition = vec![
-        Token::Computable(Operator::new(false, OpCode::And)),
         Token::Factual(Operand::new(true, 'B')),
         Token::Factual(Operand::new(true, 'A')),
+        Token::Computable(Operator::new(false, OpCode::And)),
     ];
     let mut in_facts = HashSet::new();
     let mut out_facts = HashSet::new();

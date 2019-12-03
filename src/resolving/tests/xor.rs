@@ -6,7 +6,7 @@
 /*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/22 17:21:58 by gsmith            #+#    #+#             */
-/*   Updated: 2019/11/22 17:23:16 by gsmith           ###   ########.fr       */
+/*   Updated: 2019/12/03 09:45:57 by gsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ fn build() -> ESResult<Graph> {
     graph.create_fact('B');
     graph.create_fact('C');
     let condition = vec![
-        Token::Computable(Operator::new(false, OpCode::Xor)),
         Token::Factual(Operand::new(false, 'B')),
         Token::Factual(Operand::new(false, 'A')),
+        Token::Computable(Operator::new(false, OpCode::Xor)),
     ];
     let mut in_facts = HashSet::new();
     let mut out_facts = HashSet::new();
