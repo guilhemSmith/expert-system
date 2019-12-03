@@ -6,7 +6,6 @@ use crate::utils::token::*;
 fn lexer_single_line_empty() -> Result<(), ESError> {
     let line = format!("");
     let tmp: ESLine = ESLine::new(&line)?;
-    assert_eq!(tmp.line, line);
     assert_eq!(tmp.line_type, ESLineType::Empty);
     assert_eq!(tmp.tokens.len(), 0);
     Ok(())
@@ -16,7 +15,6 @@ fn lexer_single_line_empty() -> Result<(), ESError> {
 fn lexer_single_line_commented() -> Result<(), ESError> {
     let line = format!("# Hello World je suis une ligne");
     let tmp: ESLine = ESLine::new(&line)?;
-    assert_eq!(tmp.line, line);
     assert_eq!(tmp.line_type, ESLineType::Empty);
     assert_eq!(tmp.tokens.len(), 0);
     Ok(())
@@ -26,7 +24,6 @@ fn lexer_single_line_commented() -> Result<(), ESError> {
 fn lexer_single_line_rule() -> Result<(), ESError> {
     let line = format!("A + B => C");
     let tmp: ESLine = ESLine::new(&line)?;
-    assert_eq!(tmp.line, line);
     assert_eq!(tmp.line_type, ESLineType::Rule);
     assert_eq!(tmp.tokens.len(), 5);
     if let Token::Factual(_) = tmp.tokens[0] {
@@ -56,7 +53,6 @@ fn lexer_single_line_rule() -> Result<(), ESError> {
 fn lexer_single_line_query() -> Result<(), ESError> {
     let line = format!("?ABC");
     let tmp: ESLine = ESLine::new(&line)?;
-    assert_eq!(tmp.line, line);
     assert_eq!(tmp.line_type, ESLineType::Query);
     assert_eq!(tmp.tokens.len(), 3);
     if let Token::Factual(_op) = tmp.tokens[0] {
@@ -78,7 +74,6 @@ fn lexer_single_line_query() -> Result<(), ESError> {
 fn lexer_single_line_fact() -> Result<(), ESError> {
     let line = format!("=ABC");
     let tmp: ESLine = ESLine::new(&line)?;
-    assert_eq!(tmp.line, line);
     assert_eq!(tmp.line_type, ESLineType::Fact);
     assert_eq!(tmp.tokens.len(), 3);
     if let Token::Factual(_op) = tmp.tokens[0] {
@@ -100,7 +95,6 @@ fn lexer_single_line_fact() -> Result<(), ESError> {
 fn lexer_single_line_correct_w_comment() -> Result<(), ESError> {
     let line = format!("   =ABC    #   Salut ");
     let tmp: ESLine = ESLine::new(&line)?;
-    assert_eq!(tmp.line, line);
     assert_eq!(tmp.line_type, ESLineType::Fact);
     assert_eq!(tmp.tokens.len(), 3);
     if let Token::Factual(_op) = tmp.tokens[0] {
