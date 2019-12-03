@@ -21,13 +21,29 @@ pub struct ESLine {
 }
 
 impl ESLine {
+    fn get_neg(neg: &mut (Vec<bool>, bool)) -> bool {
+        if !neg.0.is_empty() {
+            return neg.0.last().unwrap() ^ neg.1;
+        } else {
+            return neg.1;
+        }
+    }
+
+    fn push_neg(neg: &mut (Vec<bool>, bool)) {
+        if !neg.0.is_empty() {
+            neg.0.push(neg.0.last().unwrap() ^ neg.1);
+        } else {
+            neg.0.push(neg.1);
+        }
+    }
+
     fn lexer_factual(
         c: &char,
         lt: &Option<ESLineType>,
         res: &mut Vec<Token>,
-        neg: &mut bool,
+        neg: &mut (Vec<bool>, bool),
     ) -> ESResult<()> {
-        if lt.is_some() && *neg
+        if lt.is_some() && neg.1
         // Query or fact or right side of rule
         {
             return Err(ESError::new_w_what(
@@ -35,43 +51,52 @@ impl ESLine {
                 format!("Can't use negation on the right side of rules"),
             ));
         }
-        res.push(Token::Factual(Operand::new(*neg, *c))); // Add to vector
-        *neg = false; // Don't forget to reset not op
+        res.push(Token::Factual(Operand::new(ESLine::get_neg(neg), *c))); // Add to vector
+        neg.1 = false; // Don't forget to reset not op
         Ok(())
     }
 
     fn lexer_indent(
         c: &char,
         res: &mut Vec<Token>,
-        neg: &mut bool,
+        neg: &mut (Vec<bool>, bool),
     ) -> ESResult<()> {
-        if *neg {
+        let op = Modifier::op_from_str(&c.to_string())?;
+
+        if neg.1 && op != ModifierType::Ind
+        // Neg on `)` or `=>`
+        {
             return Err(ESError::new_w_what(
                 ESErrorKind::LineError,
                 format!("Can't use negation modifier with operator {}", c),
             ));
         }
-        res.push(Token::Behavioral(Modifier::new(
-            *neg,
-            Modifier::op_from_str(&c.to_string())?,
-        )?)); // Add to vector
-        *neg = false; // Don't forget to reset not op
+        match op {
+            ModifierType::Ind => ESLine::push_neg(neg), // Add to stack
+            ModifierType::Deind => {
+                neg.0.pop();
+                ()
+            } // Remove from stack
+            _ => (),
+        };
+        neg.1 = false;
+        res.push(Token::Behavioral(Modifier::new(false, op)?)); // Add to vector
         Ok(())
     }
 
     fn lexer_computable(
         c: &char,
         res: &mut Vec<Token>,
-        neg: &mut bool,
+        neg: &mut (Vec<bool>, bool),
     ) -> ESResult<()> {
-        if *neg {
+        if neg.1 {
             return Err(ESError::new_w_what(
                 ESErrorKind::LineError,
                 format!("Can't use negation modifier with modifier {}", c),
             ));
         }
-        res.push(Token::Computable(Operator::new_from_char(*neg, *c)?)); // Add to vector
-        *neg = false; // Don't forget to reset not op
+        res.push(Token::Computable(Operator::new_from_char(neg.1, *c)?)); // Add to vector
+        neg.1 = false; // Don't forget to reset not op
         Ok(())
     }
 
@@ -116,14 +141,14 @@ impl ESLine {
         match tmp {
             Some('>') => {
                 iter.next(); // Discard the `>`
-                ESLine::lexer_set_line_type(lt, &neg, ESLineType::Rule)?;
+                ESLine::lexer_set_line_type(lt, neg, ESLineType::Rule)?;
                 res.push(Token::Behavioral(Modifier::new(
                     *neg,
                     ModifierType::Imply,
                 )?))
             }
             Some('A'..='Z') => {
-                ESLine::lexer_set_line_type(lt, &neg, ESLineType::Fact)?;
+                ESLine::lexer_set_line_type(lt, neg, ESLineType::Fact)?;
                 if res.len() > 0 {
                     return Err(ESError::new_w_what(
                         ESErrorKind::LineError,
@@ -151,14 +176,14 @@ impl ESLine {
         let mut lt: Option<ESLineType> = None;
         let mut iter = line.chars().peekable();
         let mut cursor: Option<char>;
-        let mut neg = false;
+        let mut neg: (Vec<bool>, bool) = (Vec::new(), false); // Init the neg
         let mut res: Vec<Token> = Vec::new();
 
         cursor = iter.next();
         while cursor.is_some() {
             let c = cursor.unwrap();
             match c {
-                '!' => neg = true, // NOT Operator
+                '!' => neg.1 = !neg.1, // NOT Operator
                 'A'..='Z' => {
                     ESLine::lexer_factual(&c, &lt, &mut res, &mut neg)?
                 } // Fact
@@ -177,11 +202,11 @@ impl ESLine {
                 }
                 '?' => ESLine::lexer_set_line_type(
                     &mut lt,
-                    &neg,
+                    &neg.1,
                     ESLineType::Query,
                 )?,
                 '=' => ESLine::lexer_handle_equal(
-                    &c, &neg, &mut iter, &mut lt, &mut res,
+                    &c, &neg.1, &mut iter, &mut lt, &mut res,
                 )?, // Is it a Fact or a rule '=>' ?
                 '\u{0009}'..='\u{000D}' | '\u{0020}' => (), // Whitespace characters
                 _ => {
@@ -193,7 +218,7 @@ impl ESLine {
             }
             cursor = iter.next();
         }
-        if neg {
+        if neg.1 {
             return Err(ESError::new_w_what(
                 ESErrorKind::LineError,
                 String::from("Can't have a dangling `!`"),

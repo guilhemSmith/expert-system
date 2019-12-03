@@ -1,5 +1,5 @@
 use crate::lexer_parser::{ESLine, ESLineType};
-use crate::utils::error::{ESError, ESErrorKind};
+use crate::utils::error::{ESError, ESErrorKind, ESResult};
 use crate::utils::token::*;
 
 #[test]
@@ -173,6 +173,49 @@ fn lexer_neg_correct() {
 }
 
 #[test]
+fn lexer_neg_correct_propagation() -> ESResult<()> {
+    let lines: Vec<(String, Vec<bool>)> = vec![
+        (format!("!(A+B)=>D"), vec![true, true, false]),
+        (format!("!(A+B)+B=>D"), vec![true, true, false]),
+        (format!("!(A+B)+!B=>D"), vec![true, true, true]),
+        (
+            format!("!(A+B+!(C|D))+!B=>D"),
+            vec![true, true, false, false, true],
+        ),
+    ];
+
+    for line in lines {
+        let tmp = ESLine::new(&line.0);
+        let mut i = 0;
+        match tmp {
+            Ok(_) => (),
+            Err(_err) => {
+                panic!("Should NOT have failed : {} !\n{}", line.0, _err)
+            }
+        }
+        for t in tmp.unwrap().tokens().iter() {
+            if i >= line.1.len() {
+                break;
+            }
+            match t {
+                Token::Factual(_x) => {
+                    assert_eq!(
+                        _x.negated(),
+                        *line.1.get(i).unwrap(),
+                        "Problem at index {} with token {}",
+                        i,
+                        t.to_string()
+                    );
+                    i += 1;
+                }
+                _ => continue,
+            }
+        }
+    }
+    Ok(())
+}
+
+#[test]
 fn lexer_neg_incorrect() {
     let lines: Vec<String> = vec![
         format!("A!+B+C=>D"),
@@ -182,7 +225,6 @@ fn lexer_neg_incorrect() {
         format!("=!ABC"),
         format!("=A!BC"),
         format!("?AB!C"),
-        format!("!!!!()!!!!A+B+!C=>D"),
     ];
 
     for line in lines {
