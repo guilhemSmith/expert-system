@@ -115,7 +115,6 @@ fn lexer_single_line_correct_w_comment() -> Result<(), ESError> {
 #[test]
 fn lexer_single_line_error() {
     let lines: Vec<String> = vec![
-        format!("= ABC"),
         format!("A+B+C=D"),
         format!("?A+B+C=>D"),
         format!("?=BC"),
@@ -127,6 +126,41 @@ fn lexer_single_line_error() {
         let tmp = ESLine::new(&line);
         match tmp {
             Ok(_) => panic!("Should have failed {} !", line),
+            Err(err) => assert_eq!(err.kind(), ESErrorKind::LineError),
+        }
+    }
+}
+
+#[test]
+fn lexer_single_line_equal_correct() {
+    let lines: Vec<String> = vec![
+        format!("A+B+C=>     D"),
+        format!("=         D"),
+        format!("=			D"),
+        format!("A + B =	 > C"),
+    ];
+
+    for line in lines {
+        let tmp = ESLine::new(&line);
+        match tmp {
+            Ok(_) => (),
+            Err(_err) => panic!("Should NOT have failed {} !", line),
+        }
+    }
+}
+
+#[test]
+fn lexer_single_line_equal_incorrect() {
+    let lines: Vec<String> = vec![
+        format!("T=>!D"),
+        format!("A+B="),
+        format!("=!A"),
+    ];
+
+    for line in lines {
+        let tmp = ESLine::new(&line);
+        match tmp {
+			Ok(_) => panic!("Should have failed {} !", line),
             Err(err) => assert_eq!(err.kind(), ESErrorKind::LineError),
         }
     }

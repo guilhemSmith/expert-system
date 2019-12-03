@@ -18,7 +18,7 @@ fn main() -> ESResult<()> {
     if args.len() == 1 {
         let filename = args.pop().unwrap();
         if let Err(new_err) = state_process::run(filename.clone()) {
-            println!("{}", new_err);
+            eprintln!("{}", new_err);
             err = Some(ESError::failed_execution(format!(
                 "{}: execution failed",
                 filename
@@ -28,7 +28,7 @@ fn main() -> ESResult<()> {
         for filename in args {
             println!("\nfile: {}", filename);
             if let Err(new_err) = state_process::run(filename) {
-                println!("{}", new_err);
+                eprintln!("{}", new_err);
                 if let None = err {
                     err = Some(ESError::failed_execution(String::from(
                         "1 file or more failed.",
