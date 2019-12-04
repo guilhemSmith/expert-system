@@ -1,0 +1,10 @@
+[package]
+name = "expert-system"
+version = "1.0.0"
+authors = [
+	"Francis Le Roy <francis.leroy@protonmail.ch>",
+	"Guilhem Smith <smith.guilhem@gmail.com>"
+]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

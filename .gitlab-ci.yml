@@ -1,0 +1,50 @@
+default:
+  image: rust:1.39-slim
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  CARGO_HOME: $CI_PROJECT_DIR/.cargo
+
+cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - target/
+    - $CARGO_HOME/bin/
+    - $CARGO_HOME/registry/index
+    - $CARGO_HOME/registry/cache
+    - $CARGO_HOME/git/db
+  policy: pull
+
+stages:
+  - build
+  - test
+
+build_job:
+  stage: build
+  variables:
+    CODE_COVERAGE: "true"
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - target/
+      - $CARGO_HOME/bin/
+      - $CARGO_HOME/registry/index
+      - $CARGO_HOME/registry/cache
+      - $CARGO_HOME/git/db
+    policy: push
+  script:
+    - cargo build
+
+test_unit:
+  stage: test
+  variables:
+    CODE_COVERAGE: "true"
+    RUST_BACKTRACE: 1
+  script:
+    - cargo test
+
+test_functionalities:
+  stage: test
+  variables:
+    CODE_COVERAGE: "true"
+  script:
+    - sh tests/run.sh

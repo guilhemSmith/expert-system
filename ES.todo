@@ -1,0 +1,30 @@
+ExpertSystem:
+	LexerParser:
+		✔ Pouvoir detecter les comments @done(19-11-26 16:42)
+		✔ Ignorer les \w @done(19-11-26 16:42)
+		✔ Detecter les 3 parties (Regles, faits initiaux et query) @done(19-11-26 16:42)
+		Regles:
+			✔ Tokenization @done(19-11-26 16:43)
+			✔ Cree une fonction pour cree 1 Vec a partir d'un ESLine : Left token RPN style @assign(fle-roy) @done(19-11-29 16:08)
+			✔ Faire la propagation des `!` dans les parentheses (i.e. "A + B + !(C + D) => T") @assign(fle-roy) @done(19-12-03 14:04)
+			ReglesDansLeGraph:
+			✔ Creer les nouveaux faits @assign(gsmith) @done(19-12-03 14:04)
+			✔ Stockage dans le graph @assign(gsmith) @done(19-12-03 14:04)
+
+		Faits intiaux:
+			✔ Set les valeurs intiales @assign(gsmith) @done(19-12-03 14:04)
+		Query:
+			✔ Pour chaque faits : interroger le graph @assign(gsmith) @done(19-12-03 14:04)
+			✔ Display @assign(gsmith) @done(19-12-03 14:04)
+	Resolving:
+		Rules:
+			✔ Faire un container acceptant des operateurs @done(19-11-26 16:43)
+			✔ Attribut vector @done(19-11-26 16:43)
+			✔ Faire la resolution de la regle @done(19-11-26 16:43)
+	Others:
+		Token (enum):
+			✔ Negation @done(19-11-26 16:44)
+		Modifier:
+			✔ Faire une class indent et deindent pour les (, ) @done(19-11-26 16:44)
+		Operand:
+			✔ Struct @done(19-11-26 16:44)
