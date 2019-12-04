@@ -1,6 +1,4 @@
-use crate::lexer_parser::{ESLine, ESLineType, ESResult};
-use crate::utils::error::{ESError, ESErrorKind};
-use crate::utils::token::*;
+use crate::lexer_parser::{ESLine, ESResult};
 #[test]
 fn infix_to_prefix_easy() -> ESResult<()> {
     let lines: Vec<(String, String)> = vec![
@@ -11,7 +9,7 @@ fn infix_to_prefix_easy() -> ESResult<()> {
     ];
 
     for line in lines {
-        let mut tmp = ESLine::new(&line.0)?;
+        let tmp = ESLine::new(&line.0)?;
 
         let mut rpn_str = String::new();
         for t in tmp.to_prefix()? {
@@ -30,7 +28,7 @@ fn infix_to_prefix_hard() -> ESResult<()> {
     ];
 
     for line in lines {
-        let mut tmp = ESLine::new(&line.0)?;
+        let tmp = ESLine::new(&line.0)?;
 
         let mut rpn_str = String::new();
         for t in tmp.to_prefix()? {
@@ -46,10 +44,10 @@ fn infix_to_prefix_error() -> ESResult<()> {
     let lines: Vec<String> = vec![format!("=ABC"), format!("?ABC")];
 
     for line in lines {
-        let mut tmp = ESLine::new(&line)?;
+        let tmp = ESLine::new(&line)?;
         match tmp.to_prefix() {
-            Ok(x) => panic!("Should have failed at : {} !", line),
-            Err(x) => (),
+            Ok(_x) => panic!("Should have failed at : {} !", line),
+            Err(_x) => (),
         }
     }
     Ok(())
