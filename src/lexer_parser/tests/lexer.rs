@@ -151,16 +151,13 @@ fn lexer_single_line_equal_correct() {
 
 #[test]
 fn lexer_single_line_equal_incorrect() {
-    let lines: Vec<String> = vec![
-        format!("T=>!D"),
-        format!("A+B="),
-        format!("=!A"),
-    ];
+    let lines: Vec<String> =
+        vec![format!("T=>!D"), format!("A+B="), format!("=!A")];
 
     for line in lines {
         let tmp = ESLine::new(&line);
         match tmp {
-			Ok(_) => panic!("Should have failed {} !", line),
+            Ok(_) => panic!("Should have failed {} !", line),
             Err(err) => assert_eq!(err.kind(), ESErrorKind::LineError),
         }
     }

@@ -11,7 +11,6 @@ pub enum Token {
     Behavioral(Modifier),
     Computable(Operator),
     Factual(Operand),
-    Solved(bool),
 }
 
 impl Token {
@@ -30,7 +29,6 @@ impl Token {
             &Token::Computable(op) => op.negated(),
             &Token::Factual(op) => op.negated(),
             &Token::Behavioral(op) => op.negated(),
-            &Token::Solved(_op) => false,
         }
     }
 
@@ -39,7 +37,6 @@ impl Token {
             &Token::Computable(op) => op.display_str(),
             &Token::Factual(op) => op.display_str(),
             &Token::Behavioral(op) => op.display_str(),
-            &Token::Solved(op) => op.to_string(),
         }
     }
 }

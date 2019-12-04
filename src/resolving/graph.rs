@@ -6,14 +6,14 @@
 /*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/15 11:06:54 by gsmith            #+#    #+#             */
-/*   Updated: 2019/12/03 10:46:19 by gsmith           ###   ########.fr       */
+/*   Updated: 2019/12/04 13:21:00 by gsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 use std::collections::{HashMap, HashSet};
 use std::vec::Vec;
 
-use super::{Fact, Rule};
+use super::{Fact, FactValue, Rule};
 use crate::utils::{
     error::{ESError, ESResult},
     token::Token,
@@ -72,10 +72,10 @@ impl Graph {
     pub fn try_fact(
         &self,
         symbol: char,
-        seen: &mut HashMap<char, Option<bool>>,
-    ) -> ESResult<bool> {
+        seen: &mut HashMap<char, FactValue>,
+    ) -> ESResult<FactValue> {
         let res = match self.facts.get(&symbol) {
-            None => false,
+            None => FactValue::Undefined,
             Some(fact) => fact.solve(self, seen)?,
         };
         return Ok(res);
@@ -84,23 +84,34 @@ impl Graph {
     pub fn try_rule(
         &self,
         id: usize,
-        seen: &mut HashMap<char, Option<bool>>,
-    ) -> ESResult<bool> {
+        seen: &mut HashMap<char, FactValue>,
+    ) -> ESResult<FactValue> {
         self.rules[id].process(self, seen)
     }
 
-    pub fn solve_fact(&mut self, symbol: char) -> ESResult<bool> {
-        let mut seen: HashMap<char, Option<bool>> = HashMap::new();
+    pub fn solve_fact(&mut self, symbol: char) -> ESResult<Option<bool>> {
+        let mut seen: HashMap<char, FactValue> = HashMap::new();
         let res = self.try_fact(symbol, &mut seen)?;
         for (key, value) in seen {
-            if let Some(res) = value {
-                match self.facts.get_mut(&key) {
-                    None => {}
-                    Some(fact) => fact.set_solved_value(res),
-                }
+            match value {
+                FactValue::Fixed(val) => match self.facts.get_mut(&key) {
+                    None => continue,
+                    Some(fact) => fact.set_solved_value(val),
+                },
+                _ => continue,
             }
         }
-        return Ok(res);
+        match res {
+            FactValue::Fixed(val) => match self.facts.get_mut(&symbol) {
+                None => return Ok(Some(val)),
+                Some(fact) => {
+                    fact.set_solved_value(val);
+                    return Ok(Some(val));
+                }
+            },
+            FactValue::Undefined => return Ok(Some(false)),
+            FactValue::Absurd => return Ok(None),
+        }
     }
 
     pub fn clear_solutions(&mut self) {

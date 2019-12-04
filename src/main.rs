@@ -15,7 +15,7 @@ pub mod resolving;
 mod state_process;
 pub mod utils;
 
-use utils::error::{ESResult, ESError};
+use utils::error::{ESError, ESResult};
 
 fn main() -> ESResult<()> {
     let mut args: Vec<String> = std::env::args().collect();

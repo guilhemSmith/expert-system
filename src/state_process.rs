@@ -6,7 +6,7 @@
 /*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/29 16:45:12 by gsmith            #+#    #+#             */
-/*   Updated: 2019/12/03 16:02:49 by gsmith           ###   ########.fr       */
+/*   Updated: 2019/12/03 16:41:27 by gsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,11 +89,11 @@ fn process_fact(graph: &mut Graph, line: ESLine) -> ESResult<()> {
                         ESErrorKind::UnknownFact => {
                             graph.create_fact(op.symbol());
                             graph.init_fact(op.symbol())?;
-                        },
+                        }
                         _ => return Err(err),
                     }
                 };
-            },
+            }
             _ => continue,
         }
     }
@@ -108,7 +108,15 @@ fn process_query(graph: &mut Graph, line: ESLine) -> ESResult<()> {
                 println!(
                     "{}={}",
                     op.symbol(),
-                    if val { "true" } else { "false" }
+                    match val {
+                        None => "absurd",
+                        Some(val) =>
+                            if val {
+                                "true"
+                            } else {
+                                "false"
+                            },
+                    }
                 );
             }
             _ => continue,
