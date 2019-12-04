@@ -61,20 +61,21 @@ impl ESLine {
         lt: &Option<ESLineType>,
         neg: &mut (Vec<bool>, bool),
     ) -> ESResult<()> {
-		let op = Modifier::op_from_str(&c.to_string())?;
-		
-		if lt.is_some() && lt.unwrap() == ESLineType::Rule
-		{
-			return Err(ESError::new_w_what(
+        let op = Modifier::op_from_str(&c.to_string())?;
+
+        if lt.is_some() && lt.unwrap() == ESLineType::Rule {
+            return Err(ESError::new_w_what(
                 ESErrorKind::LineError,
-                format!("Can't use {} on the right side of rules", c)));
-		}
+                format!("Can't use {} on the right side of rules", c),
+            ));
+        }
         if neg.1 && op != ModifierType::Ind
         // Neg on `)` or `=>`
         {
             return Err(ESError::new_w_what(
                 ESErrorKind::LineError,
-                format!("Can't use negation modifier with operator {}", c)));
+                format!("Can't use negation modifier with operator {}", c),
+            ));
         }
         match op {
             ModifierType::Ind => ESLine::push_neg(neg), // Add to stack
@@ -95,14 +96,15 @@ impl ESLine {
         lt: &Option<ESLineType>,
         neg: &mut (Vec<bool>, bool),
     ) -> ESResult<()> {
-		let op = Operator::op_from_char(*c)?;
+        let op = Operator::op_from_char(*c)?;
 
-		if lt.is_some() && lt.unwrap() == ESLineType::Rule && op != OpCode::And
-		{
-			return Err(ESError::new_w_what(
+        if lt.is_some() && lt.unwrap() == ESLineType::Rule && op != OpCode::And
+        {
+            return Err(ESError::new_w_what(
                 ESErrorKind::LineError,
-                format!("Can't use {} on the right side of rules", c)));
-		}
+                format!("Can't use {} on the right side of rules", c),
+            ));
+        }
         if neg.1 {
             return Err(ESError::new_w_what(
                 ESErrorKind::LineError,
@@ -488,12 +490,6 @@ impl ESLine {
                 }
                 Token::Computable(_x) => {
                     ESLine::prefix_operator(&token, &mut res, &mut tmp)
-                }
-                _ => {
-                    return Err(ESError::new_w_what(
-                        ESErrorKind::RPNError,
-                        format!("Unexpected token {}", token),
-                    ))
                 }
             }
         }
