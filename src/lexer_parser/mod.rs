@@ -58,17 +58,23 @@ impl ESLine {
     fn lexer_indent(
         c: &char,
         res: &mut Vec<Token>,
+        lt: &Option<ESLineType>,
         neg: &mut (Vec<bool>, bool),
     ) -> ESResult<()> {
-        let op = Modifier::op_from_str(&c.to_string())?;
-
+		let op = Modifier::op_from_str(&c.to_string())?;
+		
+		if lt.is_some() && lt.unwrap() == ESLineType::Rule
+		{
+			return Err(ESError::new_w_what(
+                ESErrorKind::LineError,
+                format!("Can't use {} on the right side of rules", c)));
+		}
         if neg.1 && op != ModifierType::Ind
         // Neg on `)` or `=>`
         {
             return Err(ESError::new_w_what(
                 ESErrorKind::LineError,
-                format!("Can't use negation modifier with operator {}", c),
-            ));
+                format!("Can't use negation modifier with operator {}", c)));
         }
         match op {
             ModifierType::Ind => ESLine::push_neg(neg), // Add to stack
@@ -86,15 +92,24 @@ impl ESLine {
     fn lexer_computable(
         c: &char,
         res: &mut Vec<Token>,
+        lt: &Option<ESLineType>,
         neg: &mut (Vec<bool>, bool),
     ) -> ESResult<()> {
+		let op = Operator::op_from_char(*c)?;
+
+		if lt.is_some() && lt.unwrap() == ESLineType::Rule && op != OpCode::And
+		{
+			return Err(ESError::new_w_what(
+                ESErrorKind::LineError,
+                format!("Can't use {} on the right side of rules", c)));
+		}
         if neg.1 {
             return Err(ESError::new_w_what(
                 ESErrorKind::LineError,
                 format!("Can't use negation modifier with modifier {}", c),
             ));
         }
-        res.push(Token::Computable(Operator::new_from_char(neg.1, *c)?)); // Add to vector
+        res.push(Token::Computable(Operator::new(false, op))); // Add to vector
         neg.1 = false; // Don't forget to reset not op
         Ok(())
     }
@@ -204,9 +219,9 @@ impl ESLine {
                 'A'..='Z' => {
                     ESLine::lexer_factual(&c, &lt, &mut res, &mut neg)?
                 } // Fact
-                '(' | ')' => ESLine::lexer_indent(&c, &mut res, &mut neg)?, // Indent
+                '(' | ')' => ESLine::lexer_indent(&c, &mut res, &lt, &mut neg)?, // Indent
                 '+' | '|' | '^' => {
-                    ESLine::lexer_computable(&c, &mut res, &mut neg)?
+                    ESLine::lexer_computable(&c, &mut res, &lt, &mut neg)?
                 } // Computable
                 '#' => {
                     // Comment
