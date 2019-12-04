@@ -6,7 +6,7 @@
 /*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/15 11:07:14 by gsmith            #+#    #+#             */
-/*   Updated: 2019/12/04 13:24:16 by gsmith           ###   ########.fr       */
+/*   Updated: 2019/12/04 13:48:15 by gsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ impl Fact {
                             _ => continue,
                         }
                     }
-                    return Ok(FactValue::Fixed(false));
+                    return Ok(FactValue::Undefined);
                 }
                 _ => return Ok(self.solved),
             }
