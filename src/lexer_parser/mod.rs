@@ -189,8 +189,8 @@ impl ESLine {
                     ));
                 }
                 None => {
-					break ;
-				}
+                    break;
+                }
             };
         }
         if res.len() != 0 {
@@ -200,8 +200,8 @@ impl ESLine {
             ));
         } else {
             ESLine::lexer_set_line_type(lt, neg, ESLineType::Fact)?;
-		}
-		Ok(())
+        }
+        Ok(())
     }
 
     fn lexer(line: &String) -> Result<(ESLineType, Vec<Token>), ESError> {

@@ -6,7 +6,7 @@
 /*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/22 17:25:47 by gsmith            #+#    #+#             */
-/*   Updated: 2019/12/03 09:44:46 by gsmith           ###   ########.fr       */
+/*   Updated: 2019/12/03 17:15:51 by gsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,9 @@ fn solve_operator_true_negated() -> ESResult<()> {
     graph.init_fact('A')?;
     graph.init_fact('B')?;
 
-    assert!(
-        !graph.solve_fact('C')?,
+    assert_eq!(
+        graph.solve_fact('C')?,
+        Some(false),
         "Expected 'C' to be false, but it isn't."
     );
     Ok(())
@@ -63,8 +64,9 @@ fn solve_operator_false_negated() -> ESResult<()> {
     out_facts.insert('C');
     graph.add_rule(condition, in_facts, out_facts)?;
 
-    assert!(
+    assert_eq!(
         graph.solve_fact('C')?,
+        Some(true),
         "Expected 'C' to be true, but it isn't."
     );
     Ok(())
@@ -90,8 +92,9 @@ fn solve_operands_true_negated() -> ESResult<()> {
     graph.init_fact('A')?;
     graph.init_fact('B')?;
 
-    assert!(
-        !graph.solve_fact('C')?,
+    assert_eq!(
+        graph.solve_fact('C')?,
+        Some(false),
         "Expected 'C' to be false, but it isn't."
     );
     Ok(())
@@ -115,8 +118,9 @@ fn solve_operands_false_negated() -> ESResult<()> {
     out_facts.insert('C');
     graph.add_rule(condition, in_facts, out_facts)?;
 
-    assert!(
+    assert_eq!(
         graph.solve_fact('C')?,
+        Some(true),
         "Expected 'C' to be true, but it isn't."
     );
     Ok(())
