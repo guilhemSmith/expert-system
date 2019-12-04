@@ -6,7 +6,7 @@
 /*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/22 17:20:39 by gsmith            #+#    #+#             */
-/*   Updated: 2019/11/22 17:21:00 by gsmith           ###   ########.fr       */
+/*   Updated: 2019/12/03 17:12:54 by gsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,9 @@ fn solve_true() -> ESResult<()> {
     graph.create_fact('A');
     graph.init_fact('A')?;
 
-    assert!(
+    assert_eq!(
         graph.solve_fact('A')?,
+        Some(true),
         "Expected 'A' to be true, but it isn't."
     );
     Ok(())
@@ -31,8 +32,9 @@ fn solve_false() -> ESResult<()> {
     let mut graph = Graph::new();
     graph.create_fact('B');
 
-    assert!(
-        !graph.solve_fact('B')?,
+    assert_eq!(
+        graph.solve_fact('B')?,
+        Some(false),
         "Expected 'B' to be false, but it isn't."
     );
     Ok(())

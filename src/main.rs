@@ -1,9 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.rs                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/12/04 10:34:57 by gsmith            #+#    #+#             */
+/*   Updated: 2019/12/04 10:34:57 by gsmith           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 pub mod lexer_parser;
 pub mod resolving;
 mod state_process;
 pub mod utils;
 
-use utils::error::{ESError, ESResult};
+use utils::error::{ESResult, ESError};
 
 fn main() -> ESResult<()> {
     let mut args: Vec<String> = std::env::args().collect();

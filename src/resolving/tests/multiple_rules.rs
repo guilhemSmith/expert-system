@@ -6,7 +6,7 @@
 /*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/22 17:38:07 by gsmith            #+#    #+#             */
-/*   Updated: 2019/11/22 17:55:44 by gsmith           ###   ########.fr       */
+/*   Updated: 2019/12/03 17:14:19 by gsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,9 @@ fn chain_from_true() -> ESResult<()> {
     build_chain(&mut graph, 'D', 'E')?;
     graph.init_fact('A')?;
 
-    assert!(
+    assert_eq!(
         graph.solve_fact('E')?,
+        Some(true),
         "Expected 'E' to be true, but it isn't."
     );
     Ok(())
@@ -62,8 +63,9 @@ fn chain_from_false() -> ESResult<()> {
     build_chain(&mut graph, 'C', 'D')?;
     build_chain(&mut graph, 'D', 'E')?;
 
-    assert!(
-        !graph.solve_fact('E')?,
+    assert_eq!(
+        graph.solve_fact('E')?,
+        Some(false),
         "Expected 'E' to be false, but it isn't."
     );
     Ok(())
@@ -84,8 +86,9 @@ fn circle_from_true() -> ESResult<()> {
     build_chain(&mut graph, 'E', 'A')?;
     graph.init_fact('A')?;
 
-    assert!(
+    assert_eq!(
         graph.solve_fact('E')?,
+        Some(true),
         "Expected 'E' to be true, but it isn't."
     );
     Ok(())
@@ -105,8 +108,9 @@ fn circle_from_false() -> ESResult<()> {
     build_chain(&mut graph, 'D', 'E')?;
     build_chain(&mut graph, 'E', 'A')?;
 
-    assert!(
-        !graph.solve_fact('E')?,
+    assert_eq!(
+        graph.solve_fact('E')?,
+        Some(false),
         "Expected 'E' to be false, but it isn't."
     );
     Ok(())
@@ -125,8 +129,9 @@ fn four_false() -> ESResult<()> {
     build_chain(&mut graph, 'C', 'E')?;
     build_chain(&mut graph, 'D', 'E')?;
 
-    assert!(
-        !graph.solve_fact('E')?,
+    assert_eq!(
+        graph.solve_fact('E')?,
+        Some(false),
         "Expected 'E' to be false, but it isn't."
     );
     Ok(())
@@ -144,8 +149,9 @@ fn two_false_one_true() -> ESResult<()> {
     build_chain(&mut graph, 'C', 'D')?;
     graph.init_fact('B')?;
 
-    assert!(
+    assert_eq!(
         graph.solve_fact('D')?,
+        Some(true),
         "Expected 'D' to be true, but it isn't."
     );
     Ok(())
