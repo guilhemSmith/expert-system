@@ -260,3 +260,20 @@ fn lexer_neg_incorrect() {
         }
     }
 }
+
+#[test]
+fn lexer_right_side_incorrect() {
+    let lines: Vec<String> = vec![
+        format!("A+B=>C|D"),
+        format!("A+B=>C^D"),
+        format!("A+B=>(C)"),
+    ];
+
+    for line in lines {
+        let tmp = ESLine::new(&line);
+        match tmp {
+            Ok(_) => panic!("Should have failed {} !", line),
+            Err(err) => assert_eq!(err.kind(), ESErrorKind::LineError),
+        }
+    }
+}
