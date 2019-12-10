@@ -6,7 +6,7 @@
 /*   By: gsmith <gsmith@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/15 11:07:14 by gsmith            #+#    #+#             */
-/*   Updated: 2019/12/04 13:48:15 by gsmith           ###   ########.fr       */
+/*   Updated: 2019/12/10 10:44:58 by gsmith           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,16 +56,19 @@ impl Fact {
                     if self.rules_id.len() == 0 {
                         return Ok(FactValue::Fixed(false));
                     }
+                    let mut res = FactValue::Undefined;
                     for id in &self.rules_id {
                         match graph.try_rule(*id, seen)? {
-                            FactValue::Absurd => return Ok(FactValue::Absurd),
+                            FactValue::Absurd => res = FactValue::Absurd,
                             FactValue::Fixed(true) => {
-                                return Ok(FactValue::Fixed(true))
+                                if let FactValue::Undefined = res {
+                                    res = FactValue::Fixed(true);
+                                }
                             }
                             _ => continue,
                         }
                     }
-                    return Ok(FactValue::Undefined);
+                    return Ok(res);
                 }
                 _ => return Ok(self.solved),
             }
