@@ -15,9 +15,9 @@ Usage:
 
 ## Requirement
 
-This project use the 1.39.0 version of Rust, but newer version of the language should work too.
-To install Rust: https://www.rust-lang.org/tools/install
-To install the 1.39.0 or Stable: https://doc.rust-lang.org/nightly/edition-guide/rust-2018/rustup-for-managing-rust-versions.html
+This project use the 1.39.0 version of Rust, but newer version of the language should work too.  
+To install Rust: https://www.rust-lang.org/tools/install  
+To install the 1.39.0 or Stable: https://doc.rust-lang.org/nightly/edition-guide/rust-2018/rustup-for-managing-rust-versions.html  
 
 ## Compilation
 
